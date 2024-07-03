@@ -1,3 +1,5 @@
+import django_filters
+from django.db.models import Q
 from rest_framework import generics, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,10 +10,13 @@ from django.conf import settings
 from rest_framework.permissions import IsAdminUser
 import random
 import string
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
 from .models import (
     AboutUniversity, AboutCollege, Lyceum, Numberstudents, VerificationCode, Event, EventImage, Library,
     JobTitle, LanguageKnowledge, LaborActivity, Management, Structure, Recruitment,
-    Document, Direction, DSC, Сontacts, OtherLinks, Followus, VerificationCode, Numberstudents
+    Document, Direction, DSC, Сontacts, OtherLinks, Followus, VerificationCode, Numberstudents, News, Aboutthecollege,
+    Requirem, Documentation, Link
 )
 
 from .serializers import (
@@ -19,8 +24,35 @@ from .serializers import (
     EventSerializer, EventImageSerializer, LibrarySerializer, JobTitleSerializer,
     LanguageKnowledgeSerializer, LaborActivitySerializer, ManagementSerializer, StructureSerializer,
     RecruitmentSerializer, DocumentSerializer, DirectionSerializer, DSCSerializer, OtherLinksSerializer,
-    FollowusSerializer, СontactsSerializer, LibrarySerializer, VerificationCodeSerializer, LyceumSerializer
+    FollowusSerializer, СontactsSerializer, LibrarySerializer, VerificationCodeSerializer, LyceumSerializer,
+    SearchSerializer
 )
+
+
+class SearchViewSet(viewsets.ViewSet):
+    def list(self, request):
+        query = request.query_params.get('query', None)
+        if not query:
+            return Response([])
+
+        results = []
+        search_fields = ['name', 'address', 'description', 'kit', 'title', 'link', 'event', 'job_title', 'full_name']
+
+        models = [
+            AboutUniversity, AboutCollege, Lyceum, Library, Event, JobTitle, LanguageKnowledge, LaborActivity,
+            Management,
+            Structure, Recruitment, Document, Direction, Aboutthecollege, Requirem, Documentation, DSC, Сontacts,
+            OtherLinks, Followus, Link, News
+        ]
+
+        for model in models:
+            querysets = model.objects.none()
+            for field in search_fields:
+                querysets = querysets | model.objects.filter(**{f"{field}__icontains": query})
+            serializer = SearchSerializer(querysets.distinct(), many=True)
+            results.extend(serializer.data)
+
+        return Response(results)
 
 
 class AboutUniversityViewSet(viewsets.ModelViewSet):

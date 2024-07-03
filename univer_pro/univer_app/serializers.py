@@ -201,3 +201,9 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = '__all__'
+
+
+class SearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = None  # Базовую модель указывать не нужно
+        fields = '__all__'

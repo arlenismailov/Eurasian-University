@@ -6,15 +6,15 @@ from .views import (
     EventViewSet, LibraryViewSet, JobTitleViewSet, LanguageKnowledgeViewSet,
     LaborActivityViewSet, ManagementViewSet, StructureViewSet, RecruitmentViewSet, DocumentViewSet,
     DirectionViewSet, DocumentationViewSet, DSCViewSet, СontactsViewSetr, OtherLinksViewSet, FollowusViewSet,
-    LinkViewSet, NewsViewSet, LibraryViewSet, VerificationViewSet
+    LinkViewSet, NewsViewSet, LibraryViewSet, VerificationViewSet, SearchViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'library', LibraryViewSet, basename='library')
-
 urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('search/', SearchViewSet.as_view({'get': 'list'}), name='search'),
     # 3 зоведения
     path('university/', AboutUniversityViewSet.as_view({'get': 'list', 'post': 'create'}),
          name='university_list'),
